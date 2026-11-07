@@ -88,6 +88,8 @@ android {
         versionCode rootProject.ext.kelecVersionCode
         versionName '2.7.1'
         resValue "string", "build_config_package", "com.kelec"
+        // Nom affiché. Le type sidecar le remplace pour ne pas se faire passer pour l'app du Play Store.
+        manifestPlaceholders = [appLabel: "Kelec"]
     }
     // widgets de l'écran d'accueil en Jetpack Glance
     buildFeatures {
@@ -114,6 +116,16 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+        }
+        // Installation à côté de l'app officielle (com.myrenaultplus, signature Play).
+        // Même clé debug que ce dépôt, autre applicationId : Android ne remplace pas Kelec du Play Store.
+        // La montre Wear OS officielle ne se synchronise pas avec ce paquet (Data Layer = même applicationId).
+        sidecar {
+            initWith debug
+            applicationIdSuffix ".sidecar"
+            versionNameSuffix "-sidecar"
+            manifestPlaceholders = [appLabel: "Kelec test", usesCleartextTraffic: "true"]
+            matchingFallbacks = ["debug"]
         }
         release {
             // en local, sans la clé d'upload, le build release reste signé avec la clé debug

@@ -4,6 +4,19 @@ import mockSafeAreaContext from 'react-native-safe-area-context/jest/mock';
 
 jest.mock('react-native-safe-area-context', () => mockSafeAreaContext);
 
+// Valeurs factices, ni des clés Renault, ni le texte TO_FILL : les tests de connexion
+// passent le contrôle de configuration. La compilation de test, elle, a TO_FILL.
+jest.mock('react-native-config', () => {
+    const config = {
+        GIGYA_API_KEY: 'jest-present',
+        KAMEREON_API_KEY: 'jest-present',
+        MAPS_API_KEY: 'jest-present',
+        RTE_BASIC_AUTH: 'jest-present',
+        WEATHER_API_KEY: 'jest-present',
+    };
+    return { __esModule: true, default: config, Config: config };
+});
+
 jest.mock("@react-native-async-storage/async-storage", () =>
     require("@react-native-async-storage/async-storage/jest"),
 );

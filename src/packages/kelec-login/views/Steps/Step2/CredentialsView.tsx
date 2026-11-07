@@ -1,15 +1,18 @@
 import React, { useContext, RefObject, useRef } from "react";
 import { findNodeHandle, NativeModules, TextInput, View } from 'react-native';
+import Text from "../../../../../screen/Common/CustomText";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import MainContext from "../../../../../lib/Contexts/MainContext";
 import { capitlizeFirstLetter } from "../../../../../lib/graphics/utils";
 import Account, { CarMaker } from "../../../../../lib/clients/accounts/account";
+import { readBuildConfig } from "../../../../../lib/config/readBuildConfig";
 import Field, { FieldType } from "../../../../kelec-model/view/Field";
 import StepLayout from "../../../../kelec-model/view/StepLayout";
 import { CommonStyles } from "../../../../kelec-model/view/Styles";
 import { TFA_ROUTE } from "../../../../kelec-tfa";
 import { useCredentialsController } from "../../../controllers/useCredentialsController";
 import { LoginEntryParamList } from "../../LoginEntryView";
+import { RENAULT_CONFIG_BANNER } from "../../../models/renaultConfigCopy";
 
 type Props = NativeStackScreenProps<LoginEntryParamList, 'CredentialsView'> & {
     selectedCarMaker: CarMaker;
@@ -42,6 +45,11 @@ const CredentialsView = ({ selectedCarMaker, setAccount, navigation }: Props) =>
         if (tag) AutofillModule?.notifyViewEntered(tag);
     };
 
+    const showRenaultConfigBanner = (selectedCarMaker === CarMaker.RENAULT
+        || selectedCarMaker === CarMaker.DACIA
+        || selectedCarMaker === CarMaker.ALPINE)
+        && readBuildConfig().renaultLogin !== 'ready';
+
     const login = async () => {
         const succeeded = await controller.submit();
         if (succeeded) AutofillModule?.commit();
@@ -62,6 +70,9 @@ const CredentialsView = ({ selectedCarMaker, setAccount, navigation }: Props) =>
             nextButtonTestID="loginButton"
         >
             <View style={[CommonStyles.container, CommonStyles.subView]}>
+                {showRenaultConfigBanner && (
+                    <Text testID="renaultConfigBanner">{RENAULT_CONFIG_BANNER}</Text>
+                )}
                 <Field
                     ref={emailRef}
                     testID="emailInput"

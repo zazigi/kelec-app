@@ -1,5 +1,7 @@
 # Package `kelec-driving` (fork personnel)
 
+Installation Android de test, sans login Renault : [fork-android-setup.md](./fork-android-setup.md).
+
 Tableau de conduite en polonais, ajouté dans le fork `zazigi/kelec-app`.
 Œuvre dérivée de Kelec (`kelec-public/kelec-app`), sous **AGPL-3.0-or-later**, comme le reste du dépôt.
 Les textes sont dans le package (`views/copy.ts`), pas dans `localizations.json` : ce fichier reste celui de l'application d'origine.
