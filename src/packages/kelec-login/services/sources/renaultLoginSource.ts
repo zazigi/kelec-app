@@ -4,9 +4,11 @@ import { CarMakerClientErrors } from "../../../../lib/clients/carMakers/carMaker
 import RenaultClient from "../../../../lib/clients/carMakers/renaultClient";
 import CarModel from "../../../../lib/clients/cars/carModel";
 import RenaultCar from "../../../../lib/clients/cars/renaultCar";
+import { readBuildConfig } from "../../../../lib/config/readBuildConfig";
 import { LoginResult } from "../../models/loginResult";
 import { LoginSource } from "../../types/loginSource";
 import { loginErrorMessageKey } from "../loginErrors";
+import { RENAULT_LOGIN_BLOCKED } from "../../models/renaultConfigCopy";
 
 export const PLACEHOLDER_CAR_IMAGE = 'https://api.kelec.app/placeholder';
 
@@ -28,6 +30,9 @@ export class RenaultLoginSource implements LoginSource {
     constructor(private readonly carMaker: CarMaker) { }
 
     async authenticate(email: string, password: string): Promise<LoginResult> {
+        if (readBuildConfig().renaultLogin !== 'ready') {
+            return { status: 'error', messageKey: RENAULT_LOGIN_BLOCKED };
+        }
         const trimmedEmail = email.trim().toLowerCase();
         const response = await new RenaultClient(trimmedEmail, password).getKamereonAccount(this.carMaker);
 

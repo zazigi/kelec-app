@@ -1,5 +1,5 @@
 import { StyleSheet, View, ScrollView, RefreshControl, Alert } from "react-native";
-import { useCallback, useContext, useMemo } from "react";
+import { useCallback, useContext, useEffect, useMemo } from "react";
 import MainContext from "../../../../lib/Contexts/MainContext";
 import CarModel from "../../../../lib/clients/cars/carModel";
 import SummaryCard from "./Elements/SummaryCard";
@@ -11,6 +11,7 @@ import ChargesSummaryCard from "../../../../packages/kelec-charge-history/views/
 import { useChargesHistory } from "../../../../packages/kelec-charge-history/controllers/ChargesHistoryProvider";
 import { useHvac } from "../../../../packages/kelec-hvac/controllers/HvacProvider";
 import { MapCard, useCarLocation } from "../../../../packages/kelec-map";
+import { DRIVING_ROUTE, DrivingCard, originFor, snapshotFromHandler, useDriving } from "../../../../packages/kelec-driving";
 import HvacCard from "../../../../packages/kelec-hvac/views/HvacCard";
 import BatteryCard from "./Elements/BatteryCard";
 import PagerView from "react-native-pager-view";
@@ -64,6 +65,7 @@ function CarView({ carModel, navigation, account, pagerRef, tfaInProgress }: Car
     );
 
     // Historique de charge, climatisation et position ne sont synchronisés qu'une fois la batterie récupérée.
+    const { record, registerRefresh } = useDriving();
     const { history: chargesHistory, sync: syncCharges } = useChargesHistory();
     const { sync: syncHvac } = useHvac();
     const { sync: syncLocation, isMapVisible } = useCarLocation();
@@ -91,6 +93,16 @@ function CarView({ carModel, navigation, account, pagerRef, tfaInProgress }: Car
             syncWithAppleWatch(currentUser, preferences);
         }
     }, [refresh, currentUser, preferences]);
+
+    useEffect(() => {
+        registerRefresh(refreshAndSyncWatch);
+        return () => registerRefresh(null);
+    }, [registerRefresh, refreshAndSyncWatch]);
+
+    useEffect(() => {
+        if (status !== 'loaded') return;
+        record(snapshotFromHandler(apiHandler, originFor(carModel.getCarmaker()), Date.now()));
+    }, [status, revision, apiHandler, carModel, record]);
 
     const carViewContextValues = useMemo(
         () => ({ carModel, image, apiHandler, carType, account }),
@@ -134,6 +146,7 @@ function CarView({ carModel, navigation, account, pagerRef, tfaInProgress }: Car
                         <View style={{ display: 'flex', gap: 15, paddingBottom: 50 }}>
                             <SummaryCard navigation={navigation} onRefresh={refreshAndSyncWatch} isRefreshing={isRefreshing} />
                             <BatteryCard />
+                            <DrivingCard onPress={() => navigation.navigate(DRIVING_ROUTE)} />
                             <HvacCard />
                             {chargesHistory.shouldDisplayChargesCard() && (
                                 <ChargesSummaryCard navigation={navigation} />
