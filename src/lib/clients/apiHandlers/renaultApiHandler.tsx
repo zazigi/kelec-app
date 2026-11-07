@@ -50,6 +50,36 @@ class RenaultApiHandler implements ApiHandler {
         return new Date(this.apiBatteryStatusRenault?.apiData?.timestamp ?? 0);
     }
 
+    /**
+     * Champs bruts déjà reçus (pas de conversion d'unités).
+     * `batteryCapacity` à 0 reste 0 : l'écran de conduite le traite comme non fourni.
+     */
+    getDrivingFields(): {
+        timestamp?: string;
+        batteryLevel?: number;
+        batteryTemperature?: number;
+        batteryAutonomy?: number;
+        batteryCapacity?: number;
+        batteryAvailableEnergy?: number;
+        totalMileage?: number;
+        isCharging: boolean;
+        isPlugged: boolean;
+    } {
+        const battery = this.apiBatteryStatusRenault?.apiData;
+        const cockpit = this.apiCockpitRenault?.apiData;
+        return {
+            timestamp: battery?.timestamp,
+            batteryLevel: battery?.batteryLevel,
+            batteryTemperature: battery?.batteryTemperature,
+            batteryAutonomy: battery?.batteryAutonomy,
+            batteryCapacity: battery?.batteryCapacity,
+            batteryAvailableEnergy: battery?.batteryAvailableEnergy,
+            totalMileage: cockpit?.totalMileage,
+            isCharging: this.getIsCarCharging(),
+            isPlugged: this.getIsCarPlugged(),
+        };
+    }
+
     getChargingPower(carType: CarType): number {
         if (carType.getCarModel().name == CarAvailableModels.ZOE1) {
             return parseFloat(((this.apiBatteryStatusRenault?.apiData?.chargingInstantaneousPower ?? 0) / 1000).toFixed(2));

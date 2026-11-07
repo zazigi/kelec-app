@@ -13,6 +13,7 @@ import ChargeCostEditView from "../../../packages/kelec-charge-history/views/Cha
 import { HvacProvider } from "../../../packages/kelec-hvac/controllers/HvacProvider";
 import SendCoffeeCard from "./CarView/Elements/SendCoffee";
 import { FullScreenMapView, MAP_ROUTE, MapProvider } from "../../../packages/kelec-map";
+import { DRIVING_ROUTE, DrivingDashboardView, DrivingProvider } from "../../../packages/kelec-driving";
 import { CAR_TYPE_ROUTE, CarTypeRouteParams, CarTypeScreen } from "../../../packages/kelec-car-type";
 import { TFA_ROUTE, TfaRouteParams, TfaView } from "../../../packages/kelec-tfa";
 import { CHARGES_IMPORT_ROUTE, ChargesImportView } from "../../../packages/kelec-charge-import";
@@ -22,6 +23,7 @@ import { TARIFF_EDITOR_ROUTE, TARIFF_LIST_ROUTE, TariffEditorRouteParams, Tariff
 
 export type CarsViewParamList = {
     [MAP_ROUTE]: undefined;
+    [DRIVING_ROUTE]: undefined;
     DonationScreen: undefined;
     [CAR_TYPE_ROUTE]: CarTypeRouteParams;
     CarView: undefined;
@@ -68,6 +70,7 @@ function CarsPageView(): React.JSX.Element {
                         <ChargesHistoryProvider carModel={carModel} account={account}>
                           <HvacProvider carModel={carModel} account={account}>
                             <MapProvider carModel={carModel} account={account}>
+                              <DrivingProvider carModel={carModel} account={account}>
                               <NavigationContainer
                                 theme={theme}
                                 onStateChange={state => setTabBarHidden(
@@ -148,6 +151,9 @@ function CarsPageView(): React.JSX.Element {
                                   >
                                     {(props: any) => <SendCoffeeCard {...props} />}
                                   </Stack.Screen>
+                                  <Stack.Screen name={DRIVING_ROUTE}>
+                                    {props => <DrivingDashboardView navigation={props.navigation} />}
+                                  </Stack.Screen>
                                   <Stack.Screen
                                     name={MAP_ROUTE}
                                     options={{ presentation: 'modal' }}
@@ -156,6 +162,7 @@ function CarsPageView(): React.JSX.Element {
                                   </Stack.Screen>
                                 </Stack.Navigator>
                               </NavigationContainer>
+                              </DrivingProvider>
                             </MapProvider>
                           </HvacProvider>
                         </ChargesHistoryProvider>
